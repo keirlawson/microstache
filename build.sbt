@@ -12,6 +12,9 @@ lazy val root = (project in file("."))
       "org.typelevel" %% "cats-effect" % "3.5.1",
       "org.typelevel" %% "cats-parse" % "0.3.10",
       munit % Test
+    ),
+    scalacOptions ++= List(
+      "-deprecation",
     )
   )
 

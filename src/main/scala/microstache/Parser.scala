@@ -7,9 +7,9 @@ object Parser {
   val parser = {
     val openExpression = P.string("{{")
     val closeExpression = P.string("}}")
-    val identifier = P.recursive[Ast.Identifier] { recurse =>
+    val identifier = {
       val dot = P.char('.')
-      val segment = (alpha ~ (alpha | digit).rep0).map { case (first, rest) => first + rest.mkString }
+      val segment = (alpha ~ (alpha | digit).rep0).map { case (first, rest) => rest.prepended(first).mkString }
       segment.repSep(dot).map(Ast.Identifier)
     }
     val expression = identifier.between(openExpression ~ wsp.rep0, wsp.rep0 ~ closeExpression).map(Ast.Expression)
