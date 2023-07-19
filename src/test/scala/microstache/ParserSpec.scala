@@ -35,6 +35,13 @@ class HelloSpec extends munit.FunSuite {
       Ast.Text(" b4z! ")
     )))
 
+  testTemplate("parses template with multiple expressions", "foo{{bar}}baz{{qux}}", Ast.Template(List(
+      Ast.Text("foo"),
+      Ast.Expression("bar"),
+      Ast.Text("baz"),
+      Ast.Expression("qux")
+    )))
+
     // testTemplate("parses text with no expression", "foo", Ast.Template(List(
     //   Ast.Text("foo")
     // )))
