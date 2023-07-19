@@ -28,6 +28,13 @@ class HelloSpec extends munit.FunSuite {
   testTemplate("parses expression with no text", "{{bar}}", Ast.Template(List(
       Ast.Expression("bar")
     )))
+
+  testTemplate("parses expression with spaces and other punctuation", " f0o! {{bar}} b4z! ", Ast.Template(List(
+      Ast.Text(" f0o! "),
+      Ast.Expression("bar"),
+      Ast.Text(" b4z! ")
+    )))
+
     // testTemplate("parses text with no expression", "foo", Ast.Template(List(
     //   Ast.Text("foo")
     // )))
