@@ -15,7 +15,5 @@ object Parser {
       }
       Ast.Template(combined)
     }
-    //.map(nel => nel.toList.flatMap(x => List[Ast.Term](x._1, x._2))).map(Ast.Template)
-    // generalText ~ expression ~ generalText
   }
 }
