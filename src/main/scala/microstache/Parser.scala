@@ -1,4 +1,4 @@
-package example
+package microstache
 
 import cats.parse.{Parser => P}
 import cats.parse.Rfc5234._
