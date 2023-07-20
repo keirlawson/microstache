@@ -1,0 +1,5 @@
+package microstache
+
+object Renderer {
+  
+}

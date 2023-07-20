@@ -20,7 +20,7 @@ object Parser {
       val combined = lst.flatMap { case ((before, exp), after) => 
         List(before, Some(exp), after).flatten
       }
-      Ast.Template(combined)
+      Template(combined)
     }//.orElse(P.pure("").as(Ast.Template(Nil)))
   }
 }
