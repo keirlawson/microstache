@@ -3,32 +3,31 @@ package microstache
 import cats.data.NonEmptyList
 import cats.syntax.all._
 
-trait ValueResolver[A] {
-  def resolve(hash: A, path: NonEmptyList[String]): Option[String]
-}
-
-case class ResolutionError() extends RuntimeException
-
 trait Renderer[A] {
   def render(template: Template, hash: A): Either[ResolutionError, String]
 }
 
 object Renderer {
-  def apply[A](implicit resolver: ValueResolver[A]): Renderer[A] = {
+  def apply[A, B](implicit
+      resolver: ValueResolver[A, B],
+      renderable: Renderable[B]
+  ): Renderer[A] = {
     new Renderer[A] {
-      def render(template: Template, hash: A): Either[ResolutionError, String] = {
-        //FIXME microbench this
+      def render(
+          template: Template,
+          hash: A
+      ): Either[ResolutionError, String] = {
+        import Ast._
         val strs = template.contents.traverse {
-          case Ast.Text(value) => value.asRight[ResolutionError]
-          case Ast.Expression(identifier) => {
-            resolver.resolve(hash, identifier.segments).toRight(ResolutionError())
+          case Text(value) => value.asRight[ResolutionError]
+          case Expression(Ast.Identifier(segments)) => {
+            val res = resolver.resolve(hash, segments.toList)
+            res.map(renderable.render).toRight(ResolutionError())
           }
         }
-        
+
         strs.map(_.mkString)
       }
     }
   }
 }
-
-
