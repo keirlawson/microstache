@@ -4,9 +4,11 @@ import cats.parse.{Parser => P}
 import cats.parse.Rfc5234._
 
 object Parser {
+  //FIXME support empty expressions
   val parser = {
     val openExpression = P.string("{{")
     val closeExpression = P.string("}}")
+    //FIXME support empty path ie .
     val identifier = {
       val dot = P.char('.')
       val segment = (alpha ~ (alpha | digit).rep0).map { case (first, rest) => rest.prepended(first).mkString }

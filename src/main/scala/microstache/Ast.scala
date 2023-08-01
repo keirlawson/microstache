@@ -5,6 +5,21 @@ import cats.syntax.all._
 import microstache.Ast.Text
 import microstache.Ast.Expression
 
+trait ValueResolver[A, B] {
+  def resolve(hash: A, path: List[String])(implicit rendarable: Renderable[B]): Option[B]
+}
+
+trait Renderable[A] {
+  def render(a: A): String
+}
+
+//FIXME figure out lambdas
+trait Lambda[A] {
+  def apply(a: A)(implicit renderable: Renderable[A]): String
+}
+
+case class ResolutionError() extends RuntimeException
+
 case class Template(contents: List[Ast.Term])
 
 object Ast {

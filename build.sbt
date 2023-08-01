@@ -11,6 +11,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= List(
       "org.typelevel" %% "cats-effect" % "3.5.1",
       "org.typelevel" %% "cats-parse" % "0.3.10",
+      "io.circe" %% "circe-core" % "0.14.5",
       munit % Test
     ),
     scalacOptions ++= List(
