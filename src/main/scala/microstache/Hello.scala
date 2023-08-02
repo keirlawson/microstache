@@ -15,7 +15,7 @@ object Hello extends IOApp.Simple {
 
   import Circe._
 
-  val renderer = Renderer[Json, Json](Map("lower" -> Helpers.lower))
+  val renderer = Renderer[Json, Json](List(Helpers.lower))
   val run = IO.println(renderer.render(result, hash))
 }
 
