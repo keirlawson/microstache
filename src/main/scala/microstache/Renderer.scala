@@ -7,6 +7,7 @@ trait Renderer[A] {
   def render(template: Template, hash: A): Either[ResolutionError, String]
 }
 
+//FIXME this needs tests
 object Renderer {
   def apply[A, B](helpers: List[Helper[B]] = List.empty[Helper[B]])(implicit
       resolver: ValueResolver[A, B],
@@ -30,11 +31,11 @@ object Renderer {
         val strs = template.contents.traverse {
           case Text(value) => value.asRight[ResolutionError]
           case Identifier(segments) => resolveIdentifier(segments.toList).map(renderable.render)
-          case HelperInvocation(name, identifier) => {
+          case HelperInvocation(name, params) => {
             val helper = helperLookup.get(name).toRight(ResolutionError(s"helper with name ${name} not configured"))
             helper.flatMap { h =>
-              val res = resolveIdentifier(identifier.segments.toList)
-              res.map(h.apply)
+              val res = params.traverse(p => resolveIdentifier(p.segments.toList))
+              res.map(ps => HelperParameters[B](ps.zipWithIndex.map(pair => (pair._2, pair._1)).toList.toMap, Map.empty)).map(h.apply)
             }
           }
         }

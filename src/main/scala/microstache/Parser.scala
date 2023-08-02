@@ -9,14 +9,16 @@ object Parser {
   val parser = {
     val openExpression = P.string("{{")
     val closeExpression = P.string("}}")
-    val startsWithAlpha = (alpha ~ (alpha | digit).rep0).map { case (first, rest) => rest.prepended(first).mkString }
-    //FIXME support empty path ie .
-    val identifier = {
-      val dot = P.char('.')
-      startsWithAlpha.repSep(dot).map(Ast.Identifier)
+    val expressionContents: P[Ast.Expression] = {
+      val startsWithAlpha = (alpha ~ (alpha | digit).rep0).map { case (first, rest) => rest.prepended(first).mkString }
+      //FIXME support empty path ie .
+      val identifier = {
+        val dot = P.char('.')
+        startsWithAlpha.repSep(dot).map(Ast.Identifier)
+      }
+      val handlerInvocation = (startsWithAlpha ~ (wsp.rep *> identifier).rep).map{ case (name, params) => Ast.HelperInvocation(name, params) }
+      (handlerInvocation.backtrack | identifier)
     }
-    val handlerInvocation = (startsWithAlpha ~ wsp.rep ~ identifier).map{ case ((name, _), id) => Ast.HelperInvocation(name, id) }
-    val expressionContents: P[Ast.Expression] = (handlerInvocation.backtrack | identifier)
     val expression = expressionContents.between(openExpression ~ wsp.rep0, wsp.rep0 ~ closeExpression)
 
     val generalText = char.repUntilAs[String](openExpression).map(Ast.Text)
