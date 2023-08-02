@@ -9,10 +9,11 @@ object Circe {
         def render(a: Json): String = a.spaces2 //FIXME is this right? - no, need to render literals without quotes
     }
     implicit val jsonResolver: ValueResolver[Json,Json] = new ValueResolver[Json, Json] {
-        //FIXME unit test
         def resolve(hash: Json, path: List[String])(implicit rendarable: Renderable[Json]): Option[Json] = {
             
-            val result = path.foldRight[ACursor](hash.hcursor)((segment, cursor) => cursor.downField(segment))
+            val result = path.foldLeft[ACursor](hash.hcursor)((cursor, segment) => cursor.downField(segment))
+
+            println(result.history)
 
             result.focus
 
