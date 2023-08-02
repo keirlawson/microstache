@@ -13,8 +13,8 @@ trait Renderable[A] {
   def render(a: A): String
 }
 
-//FIXME figure out lambdas
-trait Lambda[A] {
+//FIXME lambdas should be able to error
+trait Helper[A] {
   def apply(a: A)(implicit renderable: Renderable[A]): String
 }
 
@@ -23,8 +23,9 @@ case class ResolutionError() extends RuntimeException
 case class Template(contents: List[Ast.Term])
 
 object Ast {
-  case class Identifier(segments: NonEmptyList[String])
+  case class Identifier(segments: NonEmptyList[String]) extends Expression
+  case class HelperInvocation(name: String, identifier: Identifier) extends Expression
   sealed trait Term
+  sealed trait Expression extends Term
   case class Text(value: String) extends Term
-  case class Expression(value: Identifier) extends Term
 }

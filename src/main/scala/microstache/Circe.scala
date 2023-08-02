@@ -13,8 +13,6 @@ object Circe {
             
             val result = path.foldLeft[ACursor](hash.hcursor)((cursor, segment) => cursor.downField(segment))
 
-            println(result.history)
-
             result.focus
 
         }

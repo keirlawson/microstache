@@ -8,7 +8,8 @@ trait Renderer[A] {
 }
 
 object Renderer {
-  def apply[A, B](implicit
+  //FIXME name should be self packaged with helpers, not up to user
+  def apply[A, B](helpers: Map[String, Helper[B]] = Map.empty[String, Helper[B]])(implicit
       resolver: ValueResolver[A, B],
       renderable: Renderable[B]
   ): Renderer[A] = {
@@ -18,11 +19,21 @@ object Renderer {
           hash: A
       ): Either[ResolutionError, String] = {
         import Ast._
+
+        def resolveIdentifier(segments: List[String]) = {
+          val res = resolver.resolve(hash, segments)
+            res.toRight(ResolutionError())
+        }
+
         val strs = template.contents.traverse {
           case Text(value) => value.asRight[ResolutionError]
-          case Expression(Ast.Identifier(segments)) => {
-            val res = resolver.resolve(hash, segments.toList)
-            res.map(renderable.render).toRight(ResolutionError())
+          case Identifier(segments) => resolveIdentifier(segments.toList).map(renderable.render)
+          case HelperInvocation(name, identifier) => {
+            val helper = helpers.get(name).toRight(ResolutionError())
+            helper.flatMap { h =>
+              val res = resolveIdentifier(identifier.segments.toList)
+              res.map(h.apply)
+            }
           }
         }
 
