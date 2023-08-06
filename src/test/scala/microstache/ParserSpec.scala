@@ -13,7 +13,7 @@ class HelloSpec extends munit.FunSuite {
       expected: Template
   ) = {
     test(description) {
-      assertEquals(parser.parse(template), ("", expected).asRight[Error])
+      assertEquals(parser.parseAll(template), expected.asRight[Error])
     }
   }
 
@@ -105,9 +105,15 @@ class HelloSpec extends munit.FunSuite {
     )
   )
 
-  // testTemplate("parses text with no expression", "foo", Ast.Template(List(
-  //   Ast.Text("foo")
-  // )))
+  testTemplate("parses text with no expression", "foo", Template(List(
+    Ast.Text("foo")
+  )))
+
+  testTemplate("parses empty string", "", Template(List.empty))
+
+  testTemplate("parses whitespace only string", " ", Template(List(
+    Ast.Text(" ")
+  )))
 
   testTemplate(
     "parses helper invocation",

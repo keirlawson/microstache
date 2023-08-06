@@ -3,8 +3,14 @@ package microstache
 import io.circe.Json
 import cats.data.NonEmptyList
 import io.circe.ACursor
+import io.circe.Decoder
+import cats.syntax.all._
 
 object Circe {
+
+    //FIXME should be namespaced separately from the other stuff
+    implicit val decoder: Decoder[Template] = Decoder[String].emap(s => Parser.parser.parseAll(s).leftMap(e => e.show))
+
     implicit val jsonRenderer: Renderable[Json] = new Renderable[Json] {
         def render(a: Json): String = a.spaces2 //FIXME is this right? - no, need to render literals without quotes
     }

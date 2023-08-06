@@ -3,10 +3,11 @@ package microstache
 import cats.parse.{Parser => P}
 import cats.parse.Rfc5234._
 import cats.syntax.all._
+import cats.parse.Parser0
 
 object Parser {
-  //FIXME support empty expressions
-  val parser = {
+
+  val parser: Parser0[Template] = {
     val openExpression = P.string("{{")
     val closeExpression = P.string("}}")
     val expressionContents: P[Ast.Expression] = {
@@ -23,11 +24,11 @@ object Parser {
 
     val generalText = char.repUntilAs[String](openExpression).map(Ast.Text)
     
-    (generalText.?.with1 ~ expression ~ generalText.?).rep0.map { lst =>
-      val combined: List[Ast.Term] = lst.flatMap { case ((before, exp), after) => 
-        List(before, Some(exp), after).flatten
-      }
-      Template(combined)
-    }//.orElse(P.pure("").as(Ast.Template(Nil)))
+    (generalText.? ~ (expression ~ generalText.?).rep0).map { case (initial, rest) =>
+
+      val combined = initial :: rest.flatMap { case (exp, after) => List(Some(exp), after) }
+
+      Template(combined.flatten)
+    }
   }
 }
