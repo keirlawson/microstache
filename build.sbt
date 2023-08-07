@@ -1,4 +1,4 @@
-import Dependencies._
+val munitVersion = "0.7.29"
 
 ThisBuild / scalaVersion     := "2.13.11"
 ThisBuild / version          := "0.1.0-SNAPSHOT"
@@ -12,7 +12,8 @@ lazy val root = (project in file("."))
       "org.typelevel" %% "cats-effect" % "3.5.1",
       "org.typelevel" %% "cats-parse" % "0.3.10",
       "io.circe" %% "circe-core" % "0.14.5",
-      munit % Test
+      "org.scalameta" %% "munit" % munitVersion % Test,
+      "org.scalameta" %% "munit-scalacheck" % munitVersion % Test
     ),
     scalacOptions ++= List(
       "-deprecation",
