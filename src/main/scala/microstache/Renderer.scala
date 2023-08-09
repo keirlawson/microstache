@@ -31,7 +31,7 @@ object Renderer {
         val strs = template.contents.traverse {
           case Text(value) => value.asRight[ResolutionError]
           case Identifier(segments) => resolveIdentifier(segments.toList).map(renderable.render)
-          case HelperInvocation(name, params) => {
+          case HelperInvocation(name, params, namedParams) => { //FIXME impl hash args in helpers
             val helper = helperLookup.get(name).toRight(ResolutionError(s"helper with name ${name} not configured"))
             helper.flatMap { h =>
               val res = params.traverse(p => resolveIdentifier(p.segments.toList))
