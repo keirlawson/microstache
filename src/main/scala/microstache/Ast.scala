@@ -37,9 +37,11 @@ object Template {
     private def showExpression(exp: Expression): String = {
       val asStr = exp match {
         case id: Identifier => showIdentifier(id)
-        case HelperInvocation(name, params) => {
+        case HelperInvocation(name, params, namedParams) => {
           val paramList = params.toList.map(showIdentifier).mkString(" ")
-          s"$name $paramList"
+          val namedParam = namedParams.toList.map{ case (k, v) => s"$k=${showIdentifier(v)}" }.mkString(" ")
+          val namedParamList = if (namedParam.isEmpty()) "" else namedParam.prepended(' ')
+          s"$name $paramList$namedParamList"
         }
       }
       asStr.prependedAll("{{").appendedAll("}}")
@@ -51,7 +53,7 @@ object Template {
 //FIXME support literals as params as well as IDs
 object Ast {
   case class Identifier(segments: NonEmptyList[String]) extends Expression
-  case class HelperInvocation(name: String, params: NonEmptyList[Identifier]) extends Expression
+  case class HelperInvocation(name: String, params: NonEmptyList[Identifier], namedParams: Map[String, Identifier]) extends Expression
   sealed trait Term
   sealed trait Expression extends Term
   case class Text(value: String) extends Term

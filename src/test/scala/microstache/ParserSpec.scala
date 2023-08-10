@@ -13,7 +13,8 @@ class HelloSpec extends munit.FunSuite {
       expected: Template
   ) = {
     test(description) {
-      assertEquals(parser.parseAll(template), expected.asRight[Error])
+      val result = parser.parseAll(template)
+      assertEquals(result, expected.asRight[Error], result.left.toOption.get.show )
     }
   }
 
@@ -122,7 +123,8 @@ class HelloSpec extends munit.FunSuite {
       List(
         Ast.HelperInvocation(
           "foo",
-          NonEmptyList.of(Ast.Identifier(NonEmptyList.of("bar", "baz")))
+          NonEmptyList.of(Ast.Identifier(NonEmptyList.of("bar", "baz"))),
+          Map.empty
         )
       )
     )
@@ -138,9 +140,40 @@ class HelloSpec extends munit.FunSuite {
           NonEmptyList.of(
             Ast.Identifier(NonEmptyList.of("bar", "baz")),
             Ast.Identifier(NonEmptyList.of("qux"))
-          )
+          ),
+          Map.empty
         )
       )
     )
   )
+
+  testTemplate("parses helper with single named arg", "{{foo bar baz=qux}}", Template(
+    List(
+      Ast.HelperInvocation(
+        "foo",
+        NonEmptyList.of(Ast.Identifier(NonEmptyList.of("bar"))),
+        Map("baz" -> Ast.Identifier(NonEmptyList.of("qux")))
+      )
+    )
+  ))
+
+  testTemplate("parses helper with multiple named args", "{{foo bar baz=qux x=y}}", Template(
+    List(
+      Ast.HelperInvocation(
+        "foo",
+        NonEmptyList.of(Ast.Identifier(NonEmptyList.of("bar"))),
+        Map("baz" -> Ast.Identifier(NonEmptyList.of("qux")), "x" -> Ast.Identifier(NonEmptyList.of("y")))
+      )
+    )
+  ))
+
+  testTemplate("parses helper with multiple named args and multiple whitespace", "{{foo   bar  baz=qux  x=y    }}", Template(
+    List(
+      Ast.HelperInvocation(
+        "foo",
+        NonEmptyList.of(Ast.Identifier(NonEmptyList.of("bar"))),
+        Map("baz" -> Ast.Identifier(NonEmptyList.of("qux")), "x" -> Ast.Identifier(NonEmptyList.of("y")))
+      )
+    )
+  ))
 }

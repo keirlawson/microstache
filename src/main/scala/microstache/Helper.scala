@@ -1,10 +1,9 @@
 package microstache
 
 //FIXME support block helpers
-//FIXME support hash params
 //FIXME lambdas should be able to error
 
-case class HelperParameters[A](params: Map[Int, A], hash: Map[String, A])
+case class HelperParameters[A](params: Map[Int, A], named: Map[String, A])
 
 trait Helper[A] {
 
