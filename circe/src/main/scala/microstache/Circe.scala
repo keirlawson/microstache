@@ -1,7 +1,6 @@
 package microstache
 
 import io.circe.Json
-import cats.data.NonEmptyList
 import io.circe.ACursor
 import io.circe.Decoder
 import cats.syntax.all._

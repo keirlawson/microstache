@@ -2,7 +2,6 @@ package microstache
 
 import cats.effect.IOApp
 import cats.effect.IO
-import cats.syntax.all._
 import io.circe.Json
 
 object Hello extends IOApp.Simple {

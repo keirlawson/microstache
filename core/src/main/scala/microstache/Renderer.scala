@@ -1,6 +1,5 @@
 package microstache
 
-import cats.data.NonEmptyList
 import cats.syntax.all._
 
 trait Renderer[A] {

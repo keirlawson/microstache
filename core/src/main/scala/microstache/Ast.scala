@@ -1,7 +1,6 @@
 package microstache
 
 import cats.data.NonEmptyList
-import cats.syntax.all._
 import microstache.Ast.Text
 import microstache.Ast.Expression
 import cats.Show

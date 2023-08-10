@@ -2,7 +2,6 @@ package microstache
 
 import cats.parse.{Parser => P}
 import cats.parse.Rfc5234._
-import cats.syntax.all._
 import cats.parse.Parser0
 
 object Parser {
