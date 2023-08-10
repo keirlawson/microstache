@@ -7,6 +7,7 @@ import io.circe.Decoder
 import cats.syntax.all._
 import io.circe.Encoder
 
+//FIXME add some more e2e-style tests around this
 object Circe {
 
     //FIXME should be namespaced separately from the other stuff

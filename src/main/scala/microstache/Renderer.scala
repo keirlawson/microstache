@@ -35,7 +35,12 @@ object Renderer {
             val helper = helperLookup.get(name).toRight(ResolutionError(s"helper with name ${name} not configured"))
             helper.flatMap { h =>
               val res = params.traverse(p => resolveIdentifier(p.segments.toList))
-              res.map(ps => HelperParameters[B](ps.zipWithIndex.map(pair => (pair._2, pair._1)).toList.toMap, Map.empty)).map(h.apply)
+              val resolvedNamed = namedParams.toList.traverse { case (k, v) =>
+                resolveIdentifier(v.segments.toList).map((k, _))
+              }
+              (res, resolvedNamed).mapN{ case (ps, nps) =>
+                HelperParameters[B](ps.zipWithIndex.map(pair => (pair._2, pair._1)).toList.toMap, nps.toMap)
+              }.map(h.apply)
             }
           }
         }
