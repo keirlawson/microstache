@@ -39,7 +39,9 @@ object Template {
         case id: Identifier => showIdentifier(id)
         case HelperInvocation(name, params, namedParams) => {
           val paramList = params.toList.map(showIdentifier).mkString(" ")
-          s"$name $paramList"
+          val namedParam = namedParams.toList.map{ case (k, v) => s"$k=${showIdentifier(v)}" }.mkString(" ")
+          val namedParamList = if (namedParam.isEmpty()) "" else namedParam.prepended(' ')
+          s"$name $paramList$namedParamList"
         }
       }
       asStr.prependedAll("{{").appendedAll("}}")

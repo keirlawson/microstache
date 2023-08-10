@@ -14,11 +14,17 @@ class AstSpec extends ScalaCheckSuite {
 
     val genText: Gen[Ast.Text] = nonEmptyStr(Gen.alphaNumChar).map(Ast.Text)
 
+    val genNamedParam: Gen[(String, Ast.Identifier)] = for {
+        k <- nonEmptyStr(Gen.alphaChar)
+        v <- genIdentifier
+    } yield (k, v)
+
     val genHelper: Gen[Ast.HelperInvocation] = for {
         name <- nonEmptyStr(Gen.alphaChar)
         params <- Gen.nonEmptyListOf(genIdentifier)
+        namedParams <- Gen.mapOf(genNamedParam)
     } yield {
-        Ast.HelperInvocation(name, NonEmptyList.fromListUnsafe(params))
+        Ast.HelperInvocation(name, NonEmptyList.fromListUnsafe(params), namedParams)
     }
 
     val genTerm: Gen[Ast.Term] = Gen.oneOf(genText, genIdentifier, genHelper)
