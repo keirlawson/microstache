@@ -9,5 +9,7 @@ trait Helper[A] {
 
   val name: String
 
-  def apply(params: HelperParameters[A])(implicit renderable: Renderable[A]): String
+  def apply(params: HelperParameters[A])(implicit
+      renderable: Renderable[A]
+  ): String
 }
