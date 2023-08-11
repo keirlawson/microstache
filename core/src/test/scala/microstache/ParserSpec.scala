@@ -210,4 +210,18 @@ class HelloSpec extends munit.FunSuite {
       )
     )
   )
+
+  testTemplate(
+    "parses helper with string literal arguments",
+    "{{foo \"bar\" baz=\"qux\"}}",
+    Template(
+      List(
+        Ast.HelperInvocation(
+          "foo",
+          NonEmptyList.of(Ast.StringLiteral("bar")),
+          Map("baz" -> Ast.StringLiteral("qux"))
+        )
+      )
+    )
+  )
 }
