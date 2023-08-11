@@ -9,7 +9,13 @@ object Helpers {
     // FIXME handle error cases
     def apply(params: HelperParameters[Json])(implicit
         renderable: Renderable[Json]
-    ): String = params.params.get(0).get.asString.get.toLowerCase()
+    ): String = {
+
+      params.params.get(0).get match {
+        case Complex(value)       => value.asString.get.toLowerCase()
+        case StringLiteral(value) => value.toLowerCase()
+      }
+    }
 
   }
 }

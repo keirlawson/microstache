@@ -9,6 +9,9 @@ object Parser {
   val parser: Parser0[Template] = {
     val openExpression = P.string("{{")
     val closeExpression = P.string("}}")
+    val stringLiteral: P[Ast.StringLiteral] = (alpha | digit).rep0.string.with1
+      .surroundedBy(P.char('"'))
+      .map(s => Ast.StringLiteral(s))
     val expressionContents: P[Ast.Expression] = {
       val startsWithAlpha = (alpha ~ (alpha | digit).rep0).map {
         case (first, rest) => rest.prepended(first).mkString
@@ -18,8 +21,9 @@ object Parser {
         val dot = P.char('.')
         startsWithAlpha.repSep(dot).map(Ast.Identifier)
       }
-      val anonParam = (identifier <* P.not(P.char('='))).backtrack
-      val namedParameter = startsWithAlpha ~ (P.char('=') *> identifier)
+      val value: P[Ast.Value] = stringLiteral | identifier
+      val anonParam = (value <* P.not(P.char('='))).backtrack
+      val namedParameter = startsWithAlpha ~ (P.char('=') *> value)
       val allParams = wsp.rep0 *> anonParam.repSep(
         wsp.rep
       ) ~ (wsp.rep *> namedParameter.repSep(wsp.rep)).?

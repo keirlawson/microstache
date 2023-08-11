@@ -1,11 +1,8 @@
 package microstache
 
 import cats.data.NonEmptyList
-import microstache.Ast.Text
-import microstache.Ast.Expression
+import microstache.Ast._
 import cats.Show
-import microstache.Ast.Identifier
-import microstache.Ast.HelperInvocation
 
 trait ValueResolver[A, B] {
   def resolve(hash: A, path: List[String])(implicit
@@ -35,13 +32,20 @@ object Template {
       id.segments.toList.mkString(".")
     }
 
+    private def showValue(v: Value): String = {
+      v match {
+        case id: Identifier       => showIdentifier(id)
+        case StringLiteral(value) => s"\"$value\""
+      }
+    }
+
     private def showExpression(exp: Expression): String = {
       val asStr = exp match {
         case id: Identifier => showIdentifier(id)
         case HelperInvocation(name, params, namedParams) => {
-          val paramList = params.toList.map(showIdentifier).mkString(" ")
+          val paramList = params.toList.map(showValue).mkString(" ")
           val namedParam = namedParams.toList
-            .map { case (k, v) => s"$k=${showIdentifier(v)}" }
+            .map { case (k, v) => s"$k=${showValue(v)}" }
             .mkString(" ")
           val namedParamList =
             if (namedParam.isEmpty()) "" else namedParam.prepended(' ')
@@ -56,11 +60,15 @@ object Template {
 
 //FIXME support literals as params as well as IDs
 object Ast {
-  case class Identifier(segments: NonEmptyList[String]) extends Expression
+  sealed trait Value
+  case class Identifier(segments: NonEmptyList[String])
+      extends Expression
+      with Value
+  case class StringLiteral(value: String) extends Value
   case class HelperInvocation(
       name: String,
-      params: NonEmptyList[Identifier],
-      namedParams: Map[String, Identifier]
+      params: NonEmptyList[Value],
+      namedParams: Map[String, Value]
   ) extends Expression
   sealed trait Term
   sealed trait Expression extends Term
