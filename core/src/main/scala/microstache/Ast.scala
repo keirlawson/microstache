@@ -58,7 +58,6 @@ object Template {
   }
 }
 
-//FIXME support literals as params as well as IDs
 object Ast {
   sealed trait Value
   case class Identifier(segments: NonEmptyList[String])
