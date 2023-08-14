@@ -1,13 +1,19 @@
+import xerial.sbt.Sonatype._
+
 val munitVersion = "0.7.29"
 
 ThisBuild / scalaVersion     := "2.13.11"
 ThisBuild / version          := "0.1.0-SNAPSHOT"
-ThisBuild / organization     := "com.example"
-ThisBuild / organizationName := "example"
+ThisBuild / organization     := "io.github.keirlawson"
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "microstache"
+    name := "microstache",
+    publishTo := sonatypePublishToBundle.value,
+    publishMavenStyle := true,
+    licenses := Seq("APL2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+    sonatypeProjectHosting := Some(GitHubHosting("keirlawson", "microstache", "keirlawson@gmail.com"))
   ).aggregate(core, circe)
 
 lazy val core = project.settings(
