@@ -43,7 +43,6 @@ object Renderer {
         namedParams: Map[String, Ast.Value],
         hash: A
     ): Either[ResolutionError, String] = {
-      // FIXME map value to value here
       val res =
         params.traverse(p => resolveValue(p, hash))
       val resolvedNamed = namedParams.toList.traverse { case (k, v) =>
