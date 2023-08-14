@@ -1,19 +1,22 @@
 package microstache
 
 import io.circe.Json
+import cats.syntax.all._
 
 object Helpers {
   val lower = new Helper[Json] {
     val name = "lower"
 
-    // FIXME handle error cases
     def apply(params: HelperParameters[Json])(implicit
         renderable: Renderable[Json]
-    ): String = {
+    ): Either[HelperError, String] = {
 
       params.params.get(0).get match {
-        case Complex(value)       => value.asString.get.toLowerCase()
-        case StringLiteral(value) => value.toLowerCase()
+        case Complex(value) =>
+          value.asString
+            .toRight(HelperError("lower helper was passed a non-string type"))
+            .map(_.toLowerCase())
+        case StringLiteral(value) => value.toLowerCase().asRight
       }
     }
 

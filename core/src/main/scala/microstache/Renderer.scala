@@ -58,7 +58,12 @@ object Renderer {
             nps.toMap
           )
         }
-        .map(h.apply)
+        .flatMap(
+          h.apply(_)
+            .leftMap(e =>
+              ResolutionError(s"Helper execution failed: ${e.message}")
+            )
+        )
     }
 
     new Renderer[A] {
