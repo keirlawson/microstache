@@ -13,7 +13,6 @@ lazy val root = (project in file("."))
 lazy val core = project.settings(
     name := "microstache",
     libraryDependencies ++= List(
-      "org.typelevel" %% "cats-effect" % "3.5.1",//FIXME remove
       "org.typelevel" %% "cats-parse" % "0.3.10",
       "org.scalameta" %% "munit" % munitVersion % Test,
       "org.scalameta" %% "munit-scalacheck" % munitVersion % Test

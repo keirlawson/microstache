@@ -29,4 +29,20 @@ class CirceSpec extends FunSuite {
     List.empty,
     Json.obj("foo" -> Json.fromString("bar"))
   )
+
+  test("template with helper renders") {
+    val template = "foo{{lower bar}}baz{{qux}}"
+    val parsed = Parser.parser.parseAll(template).toOption.get
+
+    val hash =
+      Json.obj("bar" -> Json.fromString("BUZ"), "qux" -> Json.fromString("Quz"))
+
+    import microstache.Circe._
+
+    val renderer = Renderer[Json, Json](List(Helpers.lower))
+
+    val result = renderer.render(parsed, hash).toOption.get
+
+    assertEquals(result, "foobuzbazQuz")
+  }
 }

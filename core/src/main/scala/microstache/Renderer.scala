@@ -7,7 +7,6 @@ trait Renderer[A] {
   def render(template: Template, hash: A): Either[ResolutionError, String]
 }
 
-//FIXME this needs tests
 object Renderer {
   def apply[A, B](helpers: List[Helper[B]] = List.empty[Helper[B]])(implicit
       resolver: ValueResolver[A, B],
