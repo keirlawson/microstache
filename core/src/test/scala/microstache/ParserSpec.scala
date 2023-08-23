@@ -5,7 +5,7 @@ import cats.syntax.all._
 import cats.parse.Parser.Error
 import cats.data.NonEmptyList
 
-class HelloSpec extends munit.FunSuite {
+class ParserSpec extends munit.FunSuite {
 
   def testTemplate(
       description: String,
@@ -28,7 +28,7 @@ class HelloSpec extends munit.FunSuite {
     Template(
       List(
         Ast.Text("foo"),
-        Ast.Identifier(NonEmptyList.of("bar")),
+        Ast.Identifier(List("bar")),
         Ast.Text("baz")
       )
     )
@@ -38,7 +38,7 @@ class HelloSpec extends munit.FunSuite {
     "{{bar}}baz",
     Template(
       List(
-        Ast.Identifier(NonEmptyList.of("bar")),
+        Ast.Identifier(List("bar")),
         Ast.Text("baz")
       )
     )
@@ -49,7 +49,7 @@ class HelloSpec extends munit.FunSuite {
     Template(
       List(
         Ast.Text("foo"),
-        Ast.Identifier(NonEmptyList.of("bar"))
+        Ast.Identifier(List("bar"))
       )
     )
   )
@@ -58,7 +58,7 @@ class HelloSpec extends munit.FunSuite {
     "{{bar}}",
     Template(
       List(
-        Ast.Identifier(NonEmptyList.of("bar"))
+        Ast.Identifier(List("bar"))
       )
     )
   )
@@ -69,7 +69,7 @@ class HelloSpec extends munit.FunSuite {
     Template(
       List(
         Ast.Text(" f0o! "),
-        Ast.Identifier(NonEmptyList.of("bar")),
+        Ast.Identifier(List("bar")),
         Ast.Text(" b4z! ")
       )
     )
@@ -81,9 +81,9 @@ class HelloSpec extends munit.FunSuite {
     Template(
       List(
         Ast.Text("foo"),
-        Ast.Identifier(NonEmptyList.of("bar")),
+        Ast.Identifier(List("bar")),
         Ast.Text("baz"),
-        Ast.Identifier(NonEmptyList.of("qux"))
+        Ast.Identifier(List("qux"))
       )
     )
   )
@@ -94,7 +94,7 @@ class HelloSpec extends munit.FunSuite {
     Template(
       List(
         Ast.Text("foo"),
-        Ast.Identifier(NonEmptyList.of("bar")),
+        Ast.Identifier(List("bar")),
         Ast.Text("baz")
       )
     )
@@ -105,7 +105,17 @@ class HelloSpec extends munit.FunSuite {
     "{{ foo.bar.baz }}",
     Template(
       List(
-        Ast.Identifier(NonEmptyList.of("foo", "bar", "baz"))
+        Ast.Identifier(List("foo", "bar", "baz"))
+      )
+    )
+  )
+
+  testTemplate(
+    "parses identifier for root of hash",
+    "{{ . }}",
+    Template(
+      List(
+        Ast.Identifier(List.empty)
       )
     )
   )
@@ -139,7 +149,7 @@ class HelloSpec extends munit.FunSuite {
       List(
         Ast.HelperInvocation(
           "foo",
-          NonEmptyList.of(Ast.Identifier(NonEmptyList.of("bar", "baz"))),
+          NonEmptyList.of(Ast.Identifier(List("bar", "baz"))),
           Map.empty
         )
       )
@@ -154,8 +164,8 @@ class HelloSpec extends munit.FunSuite {
         Ast.HelperInvocation(
           "foo",
           NonEmptyList.of(
-            Ast.Identifier(NonEmptyList.of("bar", "baz")),
-            Ast.Identifier(NonEmptyList.of("qux"))
+            Ast.Identifier(List("bar", "baz")),
+            Ast.Identifier(List("qux"))
           ),
           Map.empty
         )
@@ -170,8 +180,8 @@ class HelloSpec extends munit.FunSuite {
       List(
         Ast.HelperInvocation(
           "foo",
-          NonEmptyList.of(Ast.Identifier(NonEmptyList.of("bar"))),
-          Map("baz" -> Ast.Identifier(NonEmptyList.of("qux")))
+          NonEmptyList.of(Ast.Identifier(List("bar"))),
+          Map("baz" -> Ast.Identifier(List("qux")))
         )
       )
     )
@@ -184,10 +194,10 @@ class HelloSpec extends munit.FunSuite {
       List(
         Ast.HelperInvocation(
           "foo",
-          NonEmptyList.of(Ast.Identifier(NonEmptyList.of("bar"))),
+          NonEmptyList.of(Ast.Identifier(List("bar"))),
           Map(
-            "baz" -> Ast.Identifier(NonEmptyList.of("qux")),
-            "x" -> Ast.Identifier(NonEmptyList.of("y"))
+            "baz" -> Ast.Identifier(List("qux")),
+            "x" -> Ast.Identifier(List("y"))
           )
         )
       )
@@ -201,10 +211,10 @@ class HelloSpec extends munit.FunSuite {
       List(
         Ast.HelperInvocation(
           "foo",
-          NonEmptyList.of(Ast.Identifier(NonEmptyList.of("bar"))),
+          NonEmptyList.of(Ast.Identifier(List("bar"))),
           Map(
-            "baz" -> Ast.Identifier(NonEmptyList.of("qux")),
-            "x" -> Ast.Identifier(NonEmptyList.of("y"))
+            "baz" -> Ast.Identifier(List("qux")),
+            "x" -> Ast.Identifier(List("y"))
           )
         )
       )

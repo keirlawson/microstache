@@ -29,7 +29,10 @@ object Template {
     }
 
     private def showIdentifier(id: Identifier): String = {
-      id.segments.toList.mkString(".")
+      id.segments match {
+        case Nil      => "."
+        case segments => segments.mkString(".")
+      }
     }
 
     private def showValue(v: Value): String = {
@@ -60,9 +63,7 @@ object Template {
 
 object Ast {
   sealed trait Value
-  case class Identifier(segments: NonEmptyList[String])
-      extends Expression
-      with Value
+  case class Identifier(segments: List[String]) extends Expression with Value
   case class StringLiteral(value: String) extends Value
   case class HelperInvocation(
       name: String,

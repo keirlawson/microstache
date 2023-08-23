@@ -12,8 +12,8 @@ class AstSpec extends ScalaCheckSuite {
     Gen.posNum[Int].flatMap(i => Gen.stringOfN(i, gen))
 
   val genIdentifier: Gen[Ast.Identifier] = Gen
-    .nonEmptyListOf(nonEmptyStr(Gen.alphaChar))
-    .map(l => Ast.Identifier(NonEmptyList.fromListUnsafe(l)))
+    .listOf(nonEmptyStr(Gen.alphaChar))
+    .map(l => Ast.Identifier(l))
 
   val genValue: Gen[Ast.Value] = Gen.oneOf(
     genIdentifier,

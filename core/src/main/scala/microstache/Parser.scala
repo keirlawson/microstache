@@ -16,15 +16,17 @@ object Parser {
       val startsWithAlpha = (alpha ~ (alpha | digit).rep0).map {
         case (first, rest) => rest.prepended(first).mkString
       }
-      // FIXME support empty path ie .
       val identifier = {
         val dot = P.char('.')
-        startsWithAlpha.repSep(dot).map(Ast.Identifier)
+        val withSegments =
+          startsWithAlpha.repSep(dot).map(nel => Ast.Identifier(nel.toList))
+        val singleDot = dot.as(Ast.Identifier(List.empty))
+        withSegments.orElse(singleDot)
       }
       val value: P[Ast.Value] = stringLiteral | identifier
       val anonParam = (value <* P.not(P.char('='))).backtrack
       val namedParameter = startsWithAlpha ~ (P.char('=') *> value)
-      val allParams = wsp.rep0 *> anonParam.repSep(
+      val allParams = wsp.rep *> anonParam.repSep(
         wsp.rep
       ) ~ (wsp.rep *> namedParameter.repSep(wsp.rep)).?
       val handlerInvocation =
