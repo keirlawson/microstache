@@ -44,4 +44,18 @@ object Helpers {
       }
     }
   }
+
+  val json = new Helper[Json] {
+    val name = "json"
+
+    def apply(params: HelperParameters[Json])(implicit
+        renderable: Renderable[Json]
+    ): Either[HelperError, String] = {
+      params.params.head._2 match {
+        case Complex(value) => value.noSpaces.asRight
+        case StringLiteral(_) =>
+          HelperError("json helper was passed a string literal").asLeft
+      }
+    }
+  }
 }
