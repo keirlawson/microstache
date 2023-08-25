@@ -77,4 +77,25 @@ class CirceSpec extends FunSuite {
 
     assertEquals(result, "{\"bar\":\"baz\"}")
   }
+
+  test("template with json helper with exclusions renders") {
+    val template = "{{json foo exclude=\"bar\"}}"
+    val parsed = Parser.parser.parseAll(template).toOption.get
+
+    val hash =
+      Json.obj(
+        "foo" -> Json.obj(
+          "bar" -> Json.fromString("baz"),
+          "qux" -> Json.fromString("quz")
+        )
+      )
+
+    import microstache.Circe._
+
+    val renderer = Renderer[Json, Json](List(Helpers.json))
+
+    val result = renderer.render(parsed, hash).toOption.get
+
+    assertEquals(result, "{\"qux\":\"quz\"}")
+  }
 }

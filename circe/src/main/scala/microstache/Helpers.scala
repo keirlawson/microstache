@@ -51,11 +51,31 @@ object Helpers {
     def apply(params: HelperParameters[Json])(implicit
         renderable: Renderable[Json]
     ): Either[HelperError, String] = {
-      params.params.head._2 match {
-        case Complex(value) => value.noSpaces.asRight
-        case StringLiteral(_) =>
-          HelperError("json helper was passed a string literal").asLeft
+
+      val exclusions = params.named
+        .get("exclude")
+        .traverse {
+          case Complex(_) => HelperError("exclude must be a string").asLeft
+          case StringLiteral(value) => value.split(",").toSet.asRight
+        }
+        .map(_.getOrElse(Set.empty))
+
+      val json =
+        params.params.head._2 match {
+          case Complex(value) => value.asRight
+          case StringLiteral(_) =>
+            HelperError("json helper was passed a string literal").asLeft
+        }
+
+      (exclusions, json).mapN { case (exclusions, json) =>
+        val excluded =
+          json.mapObject { obj =>
+            obj.filterKeys(!exclusions.contains(_))
+          }
+
+        excluded.noSpaces // FIXME make formatting configurable
       }
+
     }
   }
 }
