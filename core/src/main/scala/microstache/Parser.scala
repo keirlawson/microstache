@@ -3,10 +3,11 @@ package microstache
 import cats.parse.{Parser => P}
 import cats.parse.Rfc5234._
 import cats.parse.Parser0
+import cats.Defer
 
 object Parser {
 
-  val parser: Parser0[Template] = {
+  val parser: Parser0[Template] = Defer[Parser0].fix[Template] { _ =>
     val openExpression = P.string("{{")
     val closeExpression = P.string("}}")
     val stringLiteral: P[Ast.StringLiteral] = (alpha | digit).rep0.string.with1
