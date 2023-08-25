@@ -51,9 +51,7 @@ object Renderer {
         .mapN { case (ps, nps) =>
           HelperParameters[B](
             ps.zipWithIndex
-              .map(pair => (pair._2, pair._1))
-              .toList
-              .toMap,
+              .map(pair => (pair._2, pair._1)),
             nps.toMap
           )
         }

@@ -1,5 +1,7 @@
 package microstache
 
+import cats.data.NonEmptyList
+
 //FIXME support block helpers
 
 sealed trait Value[A]
@@ -7,7 +9,7 @@ case class Complex[A](value: A) extends Value[A]
 case class StringLiteral[A](value: String) extends Value[A]
 
 case class HelperParameters[A](
-    params: Map[Int, Value[A]],
+    params: NonEmptyList[(Int, Value[A])],
     named: Map[String, Value[A]]
 )
 

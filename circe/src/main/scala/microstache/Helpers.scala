@@ -11,7 +11,7 @@ object Helpers {
         renderable: Renderable[Json]
     ): Either[HelperError, String] = {
 
-      params.params.get(0).get match {
+      params.params.head._2 match {
         case Complex(value) =>
           value.asString
             .toRight(HelperError("lower helper was passed a non-string type"))
