@@ -71,7 +71,7 @@ class CirceSpec extends FunSuite {
 
     import microstache.Circe._
 
-    val renderer = Renderer[Json, Json](List(Helpers.json))
+    val renderer = Renderer[Json, Json](List(Helpers.json()))
 
     val result = renderer.render(parsed, hash).toOption.get
 
@@ -92,7 +92,7 @@ class CirceSpec extends FunSuite {
 
     import microstache.Circe._
 
-    val renderer = Renderer[Json, Json](List(Helpers.json))
+    val renderer = Renderer[Json, Json](List(Helpers.json()))
 
     val result = renderer.render(parsed, hash).toOption.get
 

@@ -2,6 +2,7 @@ package microstache
 
 import io.circe.Json
 import cats.syntax.all._
+import io.circe.Printer
 
 object Helpers {
   val lower = new Helper[Json] {
@@ -45,7 +46,7 @@ object Helpers {
     }
   }
 
-  val json = new Helper[Json] {
+  def json(printer: Printer = Printer.noSpaces) = new Helper[Json] {
     val name = "json"
 
     def apply(params: HelperParameters[Json])(implicit
@@ -73,7 +74,7 @@ object Helpers {
             obj.filterKeys(!exclusions.contains(_))
           }
 
-        excluded.noSpaces // FIXME make formatting configurable
+        printer.print(excluded)
       }
 
     }
