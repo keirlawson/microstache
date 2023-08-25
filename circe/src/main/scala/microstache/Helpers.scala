@@ -21,4 +21,27 @@ object Helpers {
     }
 
   }
+
+  val urlEncode = new Helper[Json] {
+
+    val name = "urlEncode"
+
+    def apply(params: HelperParameters[Json])(implicit
+        renderable: Renderable[Json]
+    ): Either[HelperError, String] = {
+
+      val urlEncodeString = (string: String) =>
+        java.net.URLEncoder.encode(string, "UTF-8")
+
+      params.params.head._2 match {
+        case Complex(value) =>
+          value.asString
+            .toRight(
+              HelperError("urlEncode helper was passed a non-string type")
+            )
+            .map(urlEncodeString)
+        case StringLiteral(value) => urlEncodeString(value).asRight
+      }
+    }
+  }
 }

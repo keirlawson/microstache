@@ -45,4 +45,20 @@ class CirceSpec extends FunSuite {
 
     assertEquals(result, "foobuzbazQuz")
   }
+
+  test("template with urlEncode helper renders") {
+    val template = "{{urlEncode foo}}"
+    val parsed = Parser.parser.parseAll(template).toOption.get
+
+    val hash =
+      Json.obj("foo" -> Json.fromString("bar baz"))
+
+    import microstache.Circe._
+
+    val renderer = Renderer[Json, Json](List(Helpers.urlEncode))
+
+    val result = renderer.render(parsed, hash).toOption.get
+
+    assertEquals(result, "bar+baz")
+  }
 }
