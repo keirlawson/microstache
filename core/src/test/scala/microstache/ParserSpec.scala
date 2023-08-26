@@ -17,7 +17,7 @@ class ParserSpec extends munit.FunSuite {
       assertEquals(
         result,
         expected.asRight[Error],
-        result.left.toOption.get.show
+        result.left.toOption.map(_.show).getOrElse("values are not the same")
       )
     }
   }
@@ -230,6 +230,21 @@ class ParserSpec extends munit.FunSuite {
           "foo",
           NonEmptyList.of(Ast.StringLiteral("bar")),
           Map("baz" -> Ast.StringLiteral("qux"))
+        )
+      )
+    )
+  )
+
+  testTemplate(
+    "parses block helper",
+    "{{#foo bar}}baz{{/foo}}",
+    Template(
+      List(
+        Ast.BlockHelperInvocation(
+          "foo",
+          NonEmptyList.of(Ast.Identifier(List("bar"))),
+          Map.empty,
+          List(Ast.Text("baz"))
         )
       )
     )

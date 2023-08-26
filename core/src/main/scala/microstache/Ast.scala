@@ -70,6 +70,12 @@ object Ast {
       params: NonEmptyList[Value],
       namedParams: Map[String, Value]
   ) extends Expression
+  case class BlockHelperInvocation(
+      name: String,
+      params: NonEmptyList[Value],
+      namedParams: Map[String, Value],
+      block: List[Ast.Term]
+  ) extends Expression
   sealed trait Term
   sealed trait Expression extends Term
   case class Text(value: String) extends Term
