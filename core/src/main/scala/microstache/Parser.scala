@@ -4,7 +4,6 @@ import cats.parse.{Parser => P}
 import cats.parse.Rfc5234._
 import cats.parse.Parser0
 import cats.Defer
-import cats.data.NonEmptyList
 
 object Parser {
 

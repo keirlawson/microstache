@@ -35,7 +35,28 @@ class AstSpec extends ScalaCheckSuite {
     Ast.HelperInvocation(name, NonEmptyList.fromListUnsafe(params), namedParams)
   }
 
-  val genTerm: Gen[Ast.Term] = Gen.oneOf(genText, genIdentifier, genHelper)
+  val genBlockHelper: Gen[Ast.BlockHelperInvocation] = for {
+    name <- nonEmptyStr(Gen.alphaChar)
+    params <- Gen.nonEmptyListOf(genValue)
+    namedParams <- Gen.mapOf(genNamedParam)
+    contents <- Gen.sized(d => (Gen.resize(d / 2, genTemplate)))
+  } yield {
+    Ast.BlockHelperInvocation(
+      name,
+      NonEmptyList.fromListUnsafe(params),
+      namedParams,
+      contents.contents
+    )
+  }
+
+  val genTerm: Gen[Ast.Term] = Gen.sized { depth =>
+    if (depth <= 0) {
+      Gen.oneOf(genText, genIdentifier, genHelper)
+    } else {
+      Gen.oneOf(genText, genIdentifier, genHelper, genBlockHelper)
+
+    }
+  }
 
   val genTemplate: Gen[Template] = Gen
     .listOf(genTerm)

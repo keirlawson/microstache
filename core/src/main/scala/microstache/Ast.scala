@@ -42,17 +42,29 @@ object Template {
       }
     }
 
+    private def showHelper(
+        name: String,
+        params: NonEmptyList[Value],
+        namedParams: Map[String, Value]
+    ): String = {
+      val paramList = params.toList.map(showValue).mkString(" ")
+      val namedParam = namedParams.toList
+        .map { case (k, v) => s"$k=${showValue(v)}" }
+        .mkString(" ")
+      val namedParamList =
+        if (namedParam.isEmpty()) "" else namedParam.prepended(' ')
+      s"$name $paramList$namedParamList"
+    }
+
     private def showExpression(exp: Expression): String = {
       val asStr = exp match {
         case id: Identifier => showIdentifier(id)
-        case HelperInvocation(name, params, namedParams) => {
-          val paramList = params.toList.map(showValue).mkString(" ")
-          val namedParam = namedParams.toList
-            .map { case (k, v) => s"$k=${showValue(v)}" }
-            .mkString(" ")
-          val namedParamList =
-            if (namedParam.isEmpty()) "" else namedParam.prepended(' ')
-          s"$name $paramList$namedParamList"
+        case HelperInvocation(name, params, namedParams) =>
+          showHelper(name, params, namedParams)
+        case BlockHelperInvocation(name, params, namedParams, block) => {
+          val helper = showHelper(name, params, namedParams)
+          val contents = show(Template(block))
+          s"#$helper}}$contents{{/$name"
         }
       }
       asStr.prependedAll("{{").appendedAll("}}")
