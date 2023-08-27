@@ -61,7 +61,7 @@ object Parser {
       wsp.rep0 ~ closeExpression
     )
 
-    // FIXME add to generator
+    // FIXME implement if
     val block =
       (openingBlockExpression ~ recurse ~ closingBlockExpression).collect {
         // FIXME use destructure

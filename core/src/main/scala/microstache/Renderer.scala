@@ -37,30 +37,40 @@ object Renderer {
     }
 
     def invokeHelper(
-        h: Helper[B],
+        helperName: String,
         params: NonEmptyList[Ast.Value],
         namedParams: Map[String, Ast.Value],
-        hash: A
+        hash: A,
+        block: Option[Template]
     ): Either[ResolutionError, String] = {
-      val res =
-        params.traverse(p => resolveValue(p, hash))
-      val resolvedNamed = namedParams.toList.traverse { case (k, v) =>
-        resolveValue(v, hash).map((k, _))
-      }
-      (res, resolvedNamed)
-        .mapN { case (ps, nps) =>
-          HelperParameters[B](
-            ps.zipWithIndex
-              .map(pair => (pair._2, pair._1)),
-            nps.toMap
-          )
-        }
-        .flatMap(
-          h.apply(_)
-            .leftMap(e =>
-              ResolutionError(s"Helper execution failed: ${e.message}")
-            )
+      val helper = helperLookup
+        .get(helperName)
+        .toRight(
+          ResolutionError(s"helper with name ${helperName} not configured")
         )
+
+      helper.flatMap { h =>
+        val res =
+          params.traverse(p => resolveValue(p, hash))
+        val resolvedNamed = namedParams.toList.traverse { case (k, v) =>
+          resolveValue(v, hash).map((k, _))
+        }
+        (res, resolvedNamed)
+          .mapN { case (ps, nps) =>
+            HelperParameters[B](
+              ps.zipWithIndex
+                .map(pair => (pair._2, pair._1)),
+              nps.toMap,
+              block
+            )
+          }
+          .flatMap(
+            h.apply(_)
+              .leftMap(e =>
+                ResolutionError(s"Helper execution failed: ${e.message}")
+              )
+          )
+      }
     }
 
     new Renderer[A] {
@@ -75,14 +85,10 @@ object Renderer {
           case Identifier(segments) =>
             resolveIdentifier(segments.toList, hash).map(renderable.render)
           case HelperInvocation(name, params, namedParams) => {
-            val helper = helperLookup
-              .get(name)
-              .toRight(
-                ResolutionError(s"helper with name ${name} not configured")
-              )
-            helper.flatMap { h =>
-              invokeHelper(h, params, namedParams, hash)
-            }
+            invokeHelper(name, params, namedParams, hash, None)
+          }
+          case BlockHelperInvocation(name, params, namedParams, block) => {
+            invokeHelper(name, params, namedParams, hash, Some(Template(block)))
           }
         }
 
