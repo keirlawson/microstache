@@ -64,12 +64,14 @@ object Parser {
     // FIXME implement if
     val block =
       (openingBlockExpression ~ recurse ~ closingBlockExpression).collect {
-        // FIXME use destructure
-        case ((open, contents), close) if (open.name == close) =>
+        case (
+              (Ast.HelperInvocation(name, params, namedParams), contents),
+              close
+            ) if (name == close) =>
           Ast.BlockHelperInvocation(
-            open.name,
-            open.params,
-            open.namedParams,
+            name,
+            params,
+            namedParams,
             contents.contents
           )
       }

@@ -249,4 +249,26 @@ class ParserSpec extends munit.FunSuite {
       )
     )
   )
+
+  testTemplate(
+    "parses nested block helpers",
+    "{{#foo bar}}{{#baz qux}}{{/baz}}{{/foo}}",
+    Template(
+      List(
+        Ast.BlockHelperInvocation(
+          "foo",
+          NonEmptyList.of(Ast.Identifier(List("bar"))),
+          Map.empty,
+          List(
+            Ast.BlockHelperInvocation(
+              "baz",
+              NonEmptyList.of(Ast.Identifier(List("qux"))),
+              Map.empty,
+              List.empty
+            )
+          )
+        )
+      )
+    )
+  )
 }
