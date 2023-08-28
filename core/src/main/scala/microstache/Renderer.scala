@@ -8,31 +8,31 @@ trait Renderer[A] {
 }
 
 object Renderer {
+
   def apply[A, B](helpers: List[Helper[B]] = List.empty[Helper[B]])(implicit
       resolver: ValueResolver[A, B],
       renderable: Renderable[B]
   ): Renderer[A] = {
 
-    val helperLookup = helpers.map(helper => (helper.name -> helper)).toMap
+    def undefinedError(segments: List[String]) = ResolutionError(
+      s"Unable to resolve path ${segments.mkString(".")} against supplied hash"
+    )
 
-    def resolveIdentifier(segments: List[String], hash: A) = {
-      val res = resolver.resolve(hash, segments)
-      res.toRight(
-        ResolutionError(
-          s"Unable to resolve path ${segments.mkString(".")} against supplied hash"
-        )
-      )
-    }
+    val helperLookup = helpers.map(helper => (helper.name -> helper)).toMap
 
     def resolveValue(
         value: Ast.Value,
         hash: A
-    ): Either[ResolutionError, Value[B]] = {
+    ): Value[B] = {
       value match {
         case id: Ast.Identifier =>
-          resolveIdentifier(id.segments.toList, hash).map(Complex(_))
+          Complex(
+            resolver
+              .resolve(hash, id.segments)
+              .toRight(undefinedError(id.segments))
+          )
         case Ast.StringLiteral(value) =>
-          StringLiteral(value).asRight[ResolutionError]
+          StringLiteral(value)
       }
     }
 
@@ -51,24 +51,19 @@ object Renderer {
 
       helper.flatMap { h =>
         val res =
-          params.traverse(p => resolveValue(p, hash))
-        val resolvedNamed = namedParams.toList.traverse { case (k, v) =>
-          resolveValue(v, hash).map((k, _))
+          params.map(p => resolveValue(p, hash))
+        val resolvedNamed = namedParams.toList.map { case (k, v) =>
+          (k, resolveValue(v, hash))
         }
-        (res, resolvedNamed)
-          .mapN { case (ps, nps) =>
-            HelperParameters[B](
-              ps.zipWithIndex
-                .map(pair => (pair._2, pair._1)),
-              nps.toMap,
-              block
-            )
-          }
-          .flatMap(
-            h.apply(_)
-              .leftMap(e =>
-                ResolutionError(s"Helper execution failed: ${e.message}")
-              )
+        val ps = HelperParameters[B](
+          res.zipWithIndex
+            .map(pair => (pair._2, pair._1)),
+          resolvedNamed.toMap,
+          block
+        )
+        h.apply(ps)
+          .leftMap(e =>
+            ResolutionError(s"Helper execution failed: ${e.message}")
           )
       }
     }
@@ -83,7 +78,10 @@ object Renderer {
         val strs = template.contents.traverse {
           case Text(value) => value.asRight[ResolutionError]
           case Identifier(segments) =>
-            resolveIdentifier(segments.toList, hash).map(renderable.render)
+            resolver
+              .resolve(hash, segments)
+              .map(renderable.render(_))
+              .toRight(undefinedError(segments))
           case HelperInvocation(name, params, namedParams) => {
             invokeHelper(name, params, namedParams, hash, None)
           }

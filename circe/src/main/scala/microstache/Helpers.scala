@@ -14,9 +14,11 @@ object Helpers {
 
       params.params.head._2 match {
         case Complex(value) =>
-          value.asString
-            .toRight(HelperError("lower helper was passed a non-string type"))
-            .map(_.toLowerCase())
+          value.leftMap(_.asHelperError).flatMap { v =>
+            v.asString
+              .toRight(HelperError("lower helper was passed a non-string type"))
+              .map(_.toLowerCase())
+          }
         case StringLiteral(value) => value.toLowerCase().asRight
       }
     }
@@ -36,11 +38,13 @@ object Helpers {
 
       params.params.head._2 match {
         case Complex(value) =>
-          value.asString
-            .toRight(
-              HelperError("urlEncode helper was passed a non-string type")
-            )
-            .map(urlEncodeString)
+          value.leftMap(_.asHelperError).flatMap { v =>
+            v.asString
+              .toRight(
+                HelperError("urlEncode helper was passed a non-string type")
+              )
+              .map(urlEncodeString)
+          }
         case StringLiteral(value) => urlEncodeString(value).asRight
       }
     }
@@ -63,7 +67,7 @@ object Helpers {
 
       val json =
         params.params.head._2 match {
-          case Complex(value) => value.asRight
+          case Complex(value) => value.leftMap(_.asHelperError)
           case StringLiteral(_) =>
             HelperError("json helper was passed a string literal").asLeft
         }
@@ -78,5 +82,27 @@ object Helpers {
       }
 
     }
+  }
+
+  val `if` = new Helper[Json] {
+
+    val name = "if"
+
+    def apply(
+        params: HelperParameters[Json]
+    )(implicit renderable: Renderable[Json]): Either[HelperError, String] = {
+      val predicate = params.params.head._2
+      val result = predicate match {
+        case Complex(value) =>
+          value.isRight // FIXME more sophisticated truthiness checks
+        case StringLiteral(_) => true
+      }
+      val render = if (result) {
+        ??? // FIXME do rendering here
+      } else { "" }
+      render.asRight
+
+    }
+
   }
 }

@@ -14,7 +14,9 @@ trait Renderable[A] {
   def render(a: A): String
 }
 
-case class ResolutionError(message: String) extends RuntimeException
+case class ResolutionError(message: String) extends RuntimeException {
+  def asHelperError: HelperError = HelperError(message)
+}
 
 case class Template(contents: List[Ast.Term])
 

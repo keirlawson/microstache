@@ -61,7 +61,6 @@ object Parser {
       wsp.rep0 ~ closeExpression
     )
 
-    // FIXME implement if
     val block =
       (openingBlockExpression ~ recurse ~ closingBlockExpression).collect {
         case (
@@ -78,7 +77,6 @@ object Parser {
 
     val generalText = char.repUntilAs[String](openExpression).map(Ast.Text)
 
-    // FIXME actually do block or as part of expression
     (generalText.? ~ ((block.backtrack | expression) ~ generalText.?).repUntil0(
       closingBlockExpression
     )).map { case (initial, rest) =>

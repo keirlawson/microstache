@@ -3,7 +3,7 @@ package microstache
 import cats.data.NonEmptyList
 
 sealed trait Value[A]
-case class Complex[A](value: A) extends Value[A]
+case class Complex[A](value: Either[ResolutionError, A]) extends Value[A]
 case class StringLiteral[A](value: String) extends Value[A]
 
 case class HelperParameters[A](
